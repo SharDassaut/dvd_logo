@@ -8,23 +8,27 @@ by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit h
 */
 
 #include "raylib.h"
+#include <stdbool.h>
+#define WIDTH 1200
+#define HEIGTH 800
 
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
+typedef struct Logo{
+	Vector2 position;
+	float speed;
+	Color color;
+} Logo;
 
 int main ()
 {
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-
-	// Create the window and OpenGL context
-	InitWindow(1280, 800, "Hello Raylib");
-
-	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
-	SearchAndSetResourceDir("resources");
-
-	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
+	SetTargetFPS(60);
 	
+	// Create the window and OpenGL context
+	InitWindow(WIDTH, HEIGTH, "DVD Logo background");
+	int x = 0, y = 0, frame = 0;
+	bool sum_x = true, sum_y = true;
+	char c = -1 ,str1[2] = {c, '\0'};
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
@@ -33,21 +37,28 @@ int main ()
 
 		// Setup the back buffer for drawing (clear color and depth buffers)
 		ClearBackground(BLACK);
+		if(sum_x) x+=1;
+		else x-=1;
+		if(sum_y) y+=1;
+		else y-=1;
+
+		if(x == 0) sum_x = true;
+		else if(x == WIDTH) sum_x = false;
+		if(y == 0) sum_y = true;
+		else if (y == HEIGTH) sum_y = false;
+		
+		if(frame == 0){
+			c = (c + 1) % 93;
+			str1[0] = c + 33;
+		}
 
 		// draw some text using the default font
-		DrawText("Hello Raylib", 200,200,20,WHITE);
-
-		// draw our texture to the screen
-		DrawTexture(wabbit, 400, 200, WHITE);
+		DrawText(str1, x,y,20,RED);
 		
 		// end the frame and get ready for the next one  (display frame, poll input, etc...)
 		EndDrawing();
+		frame = (frame+ 1) % 24;
 	}
-
-	// cleanup
-	// unload our texture so it can be cleaned up
-	UnloadTexture(wabbit);
-
 	// destroy the window and cleanup the OpenGL context
 	CloseWindow();
 	return 0;
