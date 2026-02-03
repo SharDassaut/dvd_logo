@@ -1,12 +1,3 @@
-/*
-Raylib example file.
-This is an example main file for a simple raylib project.
-Use this as a starting point or replace it with your code.
-
-by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
-
-*/
-
 #include "raylib.h"
 #include <stdbool.h>
 #include <stdlib.h>
@@ -20,7 +11,6 @@ typedef struct Logo{
 	Vector2 speed;
 	Vector2 txt_size;
 	Color color;
-	char *txt;
 	float size;
 } Logo;
 
@@ -30,45 +20,60 @@ int main ()
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 	SetTargetFPS(60);
 	srand(time(NULL));
-	// Create the window and OpenGL context
+
 	InitWindow(WIDTH, HEIGTH, "DVD Logo background");
 	
-	int frame = 0;
+	int frame = 0,txt_width;
 	float tmp;
 	char c = -1;
-	
+	const char *txt = "DVD";
 
 
 	Logo logo = {0};
 	logo.color = RED;
-	logo.size = 200;
-	logo.position = (Vector2){rand()% (int)(WIDTH-logo.size*3+1) + logo.size/2, rand()% (int)(HEIGTH-logo.size*3+1) + logo.size/2};
-	tmp = rand()% 15 - 7.0 ;
-	logo.speed = (Vector2){tmp,tmp};	
+	logo.size = 125;
+
+	//Font fnt = LoadFont("bbn.ttf");
+	//Font fnt = LoadFontEx("bbn.ttf", logo.size ,NULL, 0);
+	Font fnt = GetFontDefault();
+
+	logo.speed = (Vector2){2.0f,2.0f};	
+
+	logo.txt_size = MeasureTextEx(fnt,"DVD", logo.size, 10);
+	logo.position = (Vector2){rand()% (int)(WIDTH-logo.txt_size.x*2) + logo.size/2, rand()% (int)(HEIGTH-logo.txt_size.y*2+1) + logo.size/2};
+
+	Vector2 t;
+
+
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{	
-		logo.txt_size = MeasureTextEx(GetFontDefault(),"DVD", logo.size, 10);
+
+		if(frame % 5 == 0){
+
+		}
+		
 		logo.position.x += logo.speed.x;
 		logo.position.y += logo.speed.y;
 		if(logo.position.x + logo.txt_size.x >= GetScreenWidth() || logo.position.x <= 0) logo.speed.x *= -1;
-		if(logo.position.y + logo.txt_size.y >= GetScreenHeight() || logo.position.y <= 0) logo.speed.y *= -1;
-		
+		if(logo.position.y + logo.txt_size.y*0.8 >= GetScreenHeight() || logo.position.y  <= 0) logo.speed.y *= -1;
+
 		// drawing
 		BeginDrawing(); 
-
 		// Setup the back buffer for drawing (clear color and depth buffers)
 		ClearBackground(BLACK);
 
-		// draw some text using the default font
-		DrawRectangle(logo.position.x, logo.position.y, logo.txt_size.x, logo.txt_size.y, WHITE);
-		//DrawText("DVD", logo.position.x, logo.position.y ,logo.size, logo.color);
-		DrawTextEx(GetFontDefault(),"DVD", logo.position, logo.size, 10, logo.color);
-		// end the frame and get ready for the next one  (display frame, poll input, etc...)
+		
+		//DrawRectangle(logo.position.x, logo.position.y, logo.txt_size.x, logo.txt_size.y*0.70, WHITE);
+		t = (Vector2){logo.position.x,logo.position.y - logo.txt_size.y*0.1};
+		DrawTextEx(fnt, txt, t, logo.size, 10.0f, logo.color);
+		
 		EndDrawing();
+
 		frame = (frame+ 1) % 60;
 	}
-	// destroy the window and cleanup the OpenGL context
+
+	UnloadFont(fnt);
 	CloseWindow();
 	return 0;
 }
