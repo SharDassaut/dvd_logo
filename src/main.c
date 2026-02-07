@@ -26,10 +26,8 @@ int main(int argc, char **argv)
 	int frame = 0, itr=0, cli =0;
 	float volume=0.6f;
 	bool pause = false;
-	float rnbw[] = {0.5f,0.5f,0.5f};
-	Color tc;
-
-
+	float rnbw[] = {255.f,0.f,0.f};
+	float normalized_rnbw[3];
 
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
@@ -40,6 +38,7 @@ int main(int argc, char **argv)
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetWindowState(FLAG_WINDOW_TRANSPARENT);
 	SetWindowState(FLAG_WINDOW_UNDECORATED);
+
 	if(argc == 2){
 		if(strcmp(argv[1],"-c") == 0) SetWindowState(FLAG_BORDERLESS_WINDOWED_MODE);
 	}
@@ -85,9 +84,36 @@ int main(int argc, char **argv)
 				PlaySound(bop);
 				logo.speed.y *= -1;
 			}
+			switch (i){
+				case 0:
+					rnbw[1]++;
+					if(rnbw[1]== 255.f) i=1;
+					break;
+				case 1:
+					rnbw[0]--;
+					if(rnbw[0] == 0) i=2;
+					break;
+				case 2:
+					rnbw[2]++;
+					if(rnbw[2]== 255.f) i=3;
+					break;
+				case 3:
+					rnbw[1]--;
+					if(rnbw[1] == 0) i=4;
+					break;
+				case 4:
+					rnbw[0]++;
+					if(rnbw[0]== 255.f) i=5;
+					break;
+				case 5:
+					rnbw[2]--;
+					if(rnbw[2] == 0) i=0;
+					break;
+			}
 
-			rnbw[0] = sin(GetTime()*2)/2.f+ .5f;
-			SetShaderValue(shader, colorLoc, &rnbw, SHADER_UNIFORM_VEC3);
+			for(int k=0; k<3;k++)normalized_rnbw[k] = rnbw[k] / 255.0f;
+			//rnbw[0] = (sin(GetTime()*2))/2.f+ .5f;
+			SetShaderValue(shader, colorLoc, &normalized_rnbw, SHADER_UNIFORM_VEC3);
 
 		}
 		// drawing
