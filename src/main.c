@@ -9,7 +9,6 @@
 #define WIDTH 1200
 #define HEIGTH 800
 
-
 #if defined(PLATFORM_DESKTOP)
     #define GLSL_VERSION            330
 #else   // PLATFORM_ANDROID, PLATFORM_WEB
@@ -24,10 +23,11 @@ typedef struct Logo{
 int main(int argc, char **argv)
 {
 	int frame = 0, itr=0, cli =0;
-	float volume=0.6f;
+	float volume=0.6f, tyme;
 	bool pause = false;
 	float rnbw[] = {255.f,0.f,0.f};
 	float normalized_rnbw[3];
+	int screenSize[2];
 
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
@@ -36,29 +36,31 @@ int main(int argc, char **argv)
 
 	InitWindow(WIDTH, HEIGTH, "DVD Logo background");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
-	SetWindowState(FLAG_WINDOW_TRANSPARENT);
 	SetWindowState(FLAG_WINDOW_UNDECORATED);
 
-	if(argc == 2){
-		if(strcmp(argv[1],"-c") == 0) SetWindowState(FLAG_BORDERLESS_WINDOWED_MODE);
+	if(argc >= 2){
+		for(int i= 1; i < argc ; i++){
+			if(strcmp(argv[i],"-c") == 0) SetWindowState(FLAG_BORDERLESS_WINDOWED_MODE);
+			else if (strcmp(argv[i],"-h") == 0) HideCursor();
+		}
 	}
 
-	HideCursor();
-	
 	InitAudioDevice();
-	Sound bop = LoadSound("bop.mp3");
+	Sound bop = LoadSound("res/bop.mp3");
 	SetSoundVolume(bop, volume);
 
 
-	Image img = LoadImage("dvd_lg.png");
+	Image img = LoadImage("res/dvd.png");
 	Texture2D txtr = LoadTextureFromImage(img);
 	
 
 	Font fnt = GetFontDefault();
 
-	Shader shader = LoadShader(0, TextFormat("tint.fs", GLSL_VERSION));
+	Shader shader = LoadShader(0, TextFormat("shaders/tint.fs", GLSL_VERSION));
 
 	int colorLoc = GetShaderLocation(shader, "color");
+	int timeLoc = GetShaderLocation(shader, "time");
+	int ssLoc = GetShaderLocation(shader, "ScreenSize");
 	SetShaderValue(shader, colorLoc, &rnbw, SHADER_UNIFORM_VEC3);
 
 	Logo logo = {0};
@@ -112,8 +114,12 @@ int main(int argc, char **argv)
 			}
 
 			for(int k=0; k<3;k++)normalized_rnbw[k] = rnbw[k] / 255.0f;
-			//rnbw[0] = (sin(GetTime()*2))/2.f+ .5f;
 			SetShaderValue(shader, colorLoc, &normalized_rnbw, SHADER_UNIFORM_VEC3);
+			tyme = GetTime();
+			SetShaderValue(shader, timeLoc, &tyme,SHADER_ATTRIB_FLOAT);
+			screenSize[0]= GetScreenWidth();
+			screenSize[1] = GetScreenHeight();
+			SetShaderValue(shader, ssLoc, &screenSize, SHADER_ATTRIB_VEC2);
 
 		}
 		// drawing
