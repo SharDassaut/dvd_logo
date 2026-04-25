@@ -24,16 +24,16 @@ A customizable DVD bouncing logo screensaver with shader effects and sound.
 - -h  Hide cursor 
 
 ## Project Structure
-DVD-Screensaver/
-├── src/
-│ ├── dvd_text.c (text version)
-│ └── main.c texture + (shader version)
-├── res/
-│ ├── bop.mp3
-│ └── dvd.png
-├── shaders/
-│ └── tint.fs
-└── README.md
+    DVD-Screensaver/
+    ├── src/
+    │   ├── dvd_text.c          (text version)
+    │   └── main.c              (texture + shader version)
+    ├── res/
+    │   ├── bop.mp3
+    │   └── dvd.png
+    ├── shaders/
+    │   └── tint.fs
+    └── README.md
 
 ## Notes
 - Run the executable from the project root directory, it will search assets from there
